@@ -74,7 +74,7 @@ class Molecule_Aggregate:
                 print(key)
 
     def to_single_file(self, filename:str):
-        """This method is useful for generating descriptor using padelpy"""
+        """This method is useful for generating descriptor using padelpy, generates a sdf file that contain all the molecules"""
 
         with Chem.SDWriter(filename) as w:
 
