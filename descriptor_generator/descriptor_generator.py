@@ -43,7 +43,6 @@ class Molecule_Aggregate:
             return int(filename.split('-')[0])
 
         for file in sorted(os.listdir(path), key = extract_integer):
-            print(file)
 
             #get the full filename with path
             filename = os.path.join(path, file)

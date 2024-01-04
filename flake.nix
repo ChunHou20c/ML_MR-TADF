@@ -33,6 +33,7 @@
         # You could add extra packages you need here too
 
         packages = [
+          pkgs.jre8
           my-python
           pkgs.openbabel2
         ]; 

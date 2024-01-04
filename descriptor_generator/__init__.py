@@ -1,3 +1,3 @@
 """
-a abstraction around rdkit to reduce repetitive processing
+an abstraction around rdkit and padelpy to reduce repetitive processing
 """
