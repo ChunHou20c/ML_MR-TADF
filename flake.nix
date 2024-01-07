@@ -17,6 +17,7 @@
         scikit-learn
         seaborn
         matplotlib
+        python-dotenv
         (
           buildPythonPackage rec {
             pname = "padelpy";

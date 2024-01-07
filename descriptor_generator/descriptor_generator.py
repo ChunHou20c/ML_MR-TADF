@@ -91,13 +91,19 @@ class Molecule_Aggregate:
 
     def __str__(self):
 
-        descriptor_summary = [(key, str(len(value))) for (key, value) in self.descriptor_dict.items()]
+        fingerprint_summary = [(key, str(len(value))) for (key, value) in self.fingerprint_dict.items()]
+        descriptor_2D_summary = [(key, str(len(value))) for (key, value) in self.descriptor_2D_dict.items()]
+        descriptor_3D_summary = [(key, str(len(value))) for (key, value) in self.descriptor_3D_dict.items()]
 
         summary_string = ""
-        for key, length in descriptor_summary:
+        for key, length in fingerprint_summary:
             summary_string += f"{key}, length {length}\n"
 
+        for key, length in descriptor_2D_summary:
+            summary_string += f"{key}, length {length}\n"
 
+        for key, length in descriptor_3D_summary:
+            summary_string += f"{key}, length {length}\n"
         return f"Molecule_Aggregator: length = {len(self.molecules)} \nkeys = {list(self.molecules.keys())} \n\nPadelpy Descriptors:\n{summary_string}"
 
     def optimize(self):
