@@ -1,6 +1,7 @@
 # This class is mean to be u into a single object to ease processing
 import os
 from pathlib import Path
+from typing import Iterable
 
 import pandas as pd
 
@@ -8,6 +9,11 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit.Chem import Descriptors
+
+import glob
+from os import path, remove
+from padelpy import padeldescriptor
+import pandas as pd
 
 class Molecule_Aggregate:
     """
@@ -27,8 +33,19 @@ class Molecule_Aggregate:
     print(molecules)
     """
 
-    def __init__(self, molecule_dictionary: dict[str, Chem.rdchem.Mol]):
+    def __init__(self, molecule_dictionary: dict[str, Chem.rdchem.Mol], padelpy_threads:int = 5):
         self.molecules = molecule_dictionary
+
+
+        padelpy_metadata_path = path.join(path.dirname(__file__), 'padelpy_metadata')
+        fingerprint_xml_files = glob.glob(f"{padelpy_metadata_path}/fingerprint_descriptors/*.xml")
+        fingerprint_xml_files.sort()
+
+        fingerprint_namelist = [x.replace(f"{padelpy_metadata_path}/fingerprint_descriptors/", "").replace(".xml","") for x in fingerprint_xml_files]
+        self.savepath = "./cache.csv"
+        self.fingerprint_dict = dict(zip(fingerprint_namelist, fingerprint_xml_files))
+        self.descriptor_dict = {}
+        self.padelpy_threads = padelpy_threads
 
     @classmethod
     def from_path(cls, path):
@@ -73,12 +90,12 @@ class Molecule_Aggregate:
                 print(E)
                 print(key)
 
-    def to_single_file(self, filename:str):
+    def to_single_file(self, filename:str, key_list:Iterable[str]):
         """This method is useful for generating descriptor using padelpy, generates a sdf file that contain all the molecules"""
 
         with Chem.SDWriter(filename) as w:
 
-            for key, molecule in self.molecules.items():
+            for key, molecule in [(key, value) for (key, value) in self.molecules.items() if key in key_list]:
                 molecule.SetProp("_Name",key)
                 w.write(molecule)
 
@@ -121,6 +138,39 @@ class Molecule_Aggregate:
             filename = os.path.join(path, f'{name}.mol')
             Chem.MolToMolFile(molecule, filename)
 
+    def generate_padelpy_fingerprint(self):
+
+        molecule_filename = "temp.sdf"
+        self.to_single_file("temp.sdf", self.molecules.keys())
+
+
+        for key, filename in self.fingerprint_dict.items():
+            try:
+
+                padeldescriptor(
+                    mol_dir=filename, 
+                    maxruntime = 100,
+                    descriptortypes=filename,
+                    d_file=self.savepath,
+                    detectaromaticity=True,
+                    standardizenitro=True,
+                    standardizetautomers=True,
+                    threads=self.padelpy_threads,
+                    removesalt=True,
+                    fingerprints=True)
+
+            except Exception as E:
+
+                print(E)
+                continue
+
+            if path.isfile(self.savepath):
+                result = pd.read_csv(self.savepath)
+                self.descriptor_dict[key] = result
+                remove(self.savepath)
+
+        if path.isfile(molecule_filename):
+            remove(molecule_filename)
 
 if __name__ == "__main__":
     pass
