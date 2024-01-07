@@ -44,11 +44,11 @@ class Molecule_Aggregate:
         fingerprint_namelist = [x.replace(f"{padelpy_metadata_path}/fingerprint_descriptors/", "").replace(".xml","") for x in fingerprint_xml_files]
         self.savepath = "./cache.csv"
         self.fingerprint_dict = dict(zip(fingerprint_namelist, fingerprint_xml_files))
-        self.descriptor_dict = {}
+        self.descriptor_dict:dict[str, pd.DataFrame] = {}
         self.padelpy_threads = padelpy_threads
 
     @classmethod
-    def from_path(cls, path):
+    def from_path(cls, path, padelpy_threads:int = 5):
         """
         path: the path all the molecules located
         return: Molecule_Aggregator
@@ -69,10 +69,18 @@ class Molecule_Aggregate:
             key = Path(filename).stem
             molecule_dictionary.update({key: molecule})
 
-        return cls(molecule_dictionary)  
+        return cls(molecule_dictionary, padelpy_threads)  
 
     def __str__(self):
-        return f"Molecule_Aggregator: length = {len(self.molecules)} \nkeys = {self.molecules.keys()}"
+
+        descriptor_summary = [(key, str(len(value))) for (key, value) in self.descriptor_dict.items()]
+
+        summary_string = ""
+        for key, length in descriptor_summary:
+            summary_string += f"{key}, length {length}\n"
+
+
+        return f"Molecule_Aggregator: length = {len(self.molecules)} \nkeys = {list(self.molecules.keys())} \n\nPadelpy Descriptors:\n{summary_string}"
 
     def optimize(self):
         """Calling this function will optimize the geometry of the molecules using rdkit optimization"""
@@ -138,17 +146,17 @@ class Molecule_Aggregate:
             filename = os.path.join(path, f'{name}.mol')
             Chem.MolToMolFile(molecule, filename)
 
-    def generate_padelpy_fingerprint(self):
+    def generate_padelpy_fingerprint(self, key_list:Iterable[str]):
 
         molecule_filename = "temp.sdf"
-        self.to_single_file("temp.sdf", self.molecules.keys())
+        self.to_single_file("temp.sdf", key_list)
 
 
         for key, filename in self.fingerprint_dict.items():
             try:
 
                 padeldescriptor(
-                    mol_dir=filename, 
+                    mol_dir=molecule_filename, 
                     maxruntime = 100,
                     descriptortypes=filename,
                     d_file=self.savepath,
@@ -171,6 +179,19 @@ class Molecule_Aggregate:
 
         if path.isfile(molecule_filename):
             remove(molecule_filename)
+
+    def check_padelpy_descriptor_empty_list(self):
+            
+        
+        status_dict:dict[str,list[str]] = {}
+        for key, value in self.descriptor_dict.items():
+            
+            molecule_list_contain_null = value[value.isnull().any(axis=1)==True]['Name'].to_list()
+            status_dict[key] = molecule_list_contain_null
+
+        return status_dict
+
+
 
 if __name__ == "__main__":
     pass

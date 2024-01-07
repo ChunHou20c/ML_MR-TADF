@@ -54,6 +54,6 @@ class Molecule_File_Aggregator:
 
 if __name__ == "__main__":
     
-    molecule_file = Molecule_File_Aggregator("test.sdf", "result.csv");
+    molecule_file = Molecule_File_Aggregator("temp.sdf", "result.csv");
     molecule_file.gen_fingerPrint()
     print(molecule_file)
