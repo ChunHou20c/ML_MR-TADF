@@ -146,7 +146,7 @@ class Molecule_Aggregate:
             filename = os.path.join(path, f'{name}.mol')
             Chem.MolToMolFile(molecule, filename)
 
-    def generate_padelpy_fingerprint(self, key_list:Iterable[str]):
+    def generate_padelpy_fingerprint(self, key_list:Iterable[str], max_run_time:int = 100, regenerate:bool = False):
 
         molecule_filename = "temp.sdf"
         self.to_single_file("temp.sdf", key_list)
@@ -157,7 +157,7 @@ class Molecule_Aggregate:
 
                 padeldescriptor(
                     mol_dir=molecule_filename, 
-                    maxruntime = 100,
+                    maxruntime = max_run_time,
                     descriptortypes=filename,
                     d_file=self.savepath,
                     detectaromaticity=True,
@@ -174,19 +174,27 @@ class Molecule_Aggregate:
 
             if path.isfile(self.savepath):
                 result = pd.read_csv(self.savepath)
-                self.descriptor_dict[key] = result
+
+                if regenerate:
+
+                    current_dataframe = self.descriptor_dict[key]
+                    self.descriptor_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
+                    print(result)
+                else:
+
+                    self.descriptor_dict[key] = result
                 remove(self.savepath)
 
         if path.isfile(molecule_filename):
             remove(molecule_filename)
 
-    def check_padelpy_descriptor_empty_list(self):
+    def check_padelpy_descriptor_empty_list(self)->dict[str, list[str]]:
             
-        
         status_dict:dict[str,list[str]] = {}
         for key, value in self.descriptor_dict.items():
             
             molecule_list_contain_null = value[value.isnull().any(axis=1)==True]['Name'].to_list()
+            molecule_list_contain_null.sort()
             status_dict[key] = molecule_list_contain_null
 
         return status_dict
