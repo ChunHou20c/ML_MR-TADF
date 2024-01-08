@@ -201,9 +201,10 @@ class Molecule_Aggregate:
 
                 if regenerate:
 
-                    current_dataframe = self.fingerprint_dict[key]
+                    current_dataframe = self.fingerprint_dict.get(key)
+                    if(current_dataframe == None):
+                        continue
                     self.fingerprint_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
-                    print(result)
                 else:
 
                     self.fingerprint_dict[key] = result
@@ -256,7 +257,9 @@ class Molecule_Aggregate:
 
                 if regenerate:
 
-                    current_dataframe = self.descriptor_2D_dict[key]
+                    current_dataframe = self.descriptor_2D_dict.get(key)
+                    if(current_dataframe == None):
+                        continue
                     self.descriptor_2D_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
                     print(result)
                 else:
@@ -312,7 +315,9 @@ class Molecule_Aggregate:
 
                 if regenerate:
 
-                    current_dataframe = self.descriptor_3D_dict[key]
+                    current_dataframe = self.descriptor_3D_dict.get(key)
+                    if(current_dataframe == None):
+                        continue
                     self.descriptor_3D_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
                     print(result)
                 else:
