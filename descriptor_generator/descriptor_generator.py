@@ -201,10 +201,11 @@ class Molecule_Aggregate:
 
                 if regenerate:
 
-                    current_dataframe = self.fingerprint_dict.get(key)
-                    if(current_dataframe == None):
+                    if key in self.fingerprint_dict:
+                        current_dataframe = self.fingerprint_dict[key]
+                        self.fingerprint_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
+                    else:
                         continue
-                    self.fingerprint_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
                 else:
 
                     self.fingerprint_dict[key] = result
@@ -257,14 +258,14 @@ class Molecule_Aggregate:
 
                 if regenerate:
 
-                    current_dataframe = self.descriptor_2D_dict.get(key)
-                    if(current_dataframe == None):
+                    if key in self.fingerprint_dict:
+                        current_dataframe = self.fingerprint_dict[key]
+                        self.fingerprint_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
+                    else:
                         continue
-                    self.descriptor_2D_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
-                    print(result)
                 else:
 
-                    self.descriptor_2D_dict[key] = result
+                    self.fingerprint_dict[key] = result
                 remove(self.savepath)
 
         if path.isfile(molecule_filename):
@@ -315,14 +316,14 @@ class Molecule_Aggregate:
 
                 if regenerate:
 
-                    current_dataframe = self.descriptor_3D_dict.get(key)
-                    if(current_dataframe == None):
+                    if key in self.fingerprint_dict:
+                        current_dataframe = self.fingerprint_dict[key]
+                        self.fingerprint_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
+                    else:
                         continue
-                    self.descriptor_3D_dict[key] = pd.concat([current_dataframe[current_dataframe.isnull().any(axis=1)==False], result], ignore_index=True)
-                    print(result)
                 else:
 
-                    self.descriptor_3D_dict[key] = result
+                    self.fingerprint_dict[key] = result
                 remove(self.savepath)
 
         if path.isfile(molecule_filename):
