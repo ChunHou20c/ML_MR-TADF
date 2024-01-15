@@ -6,9 +6,8 @@ from typing import Iterable
 import pandas as pd
 
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit.Chem import AllChem, Draw
 from rdkit.ML.Descriptors import MoleculeDescriptors
-from rdkit.Chem import Descriptors
 
 import glob
 from os import path, remove
@@ -169,6 +168,17 @@ class Molecule_Aggregate:
 
             filename = os.path.join(path, f'{name}.mol')
             Chem.MolToMolFile(molecule, filename)
+
+    def to_image(self, path:str):
+        """
+        save the molecules to png file
+        dir: directory to save the files
+        """
+        
+        for name, molecule in self.molecules.items():
+
+            filename = os.path.join(path, f'{name}.png')
+            Draw.MolToFile(molecule, filename, size=(720,720), fitImage=False, imageType='png')
 
     def generate_padelpy_fingerprint(self, key_list:Iterable[str], max_run_time:int = 100, regenerate:bool = False):
 
