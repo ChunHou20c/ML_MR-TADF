@@ -39,6 +39,8 @@ with open("config.json") as f:
         molecules = Molecule_Aggregate.from_path(molecule_dir, threads)
         molecules.optimize()
         molecules.generate_rdkit_descriptor()
+        descriptors = molecules.get_rdkit_descriptor()
+        descriptors.to_csv("all_descriptor.csv", index=False)
 
         molecules.generate_padelpy_fingerprint(molecules.molecules.keys(), max_run_time = runtime_multiplier, regenerate = False)
         molecules.generate_padelpy_2D_descriptor(molecules.molecules.keys(), max_run_time = runtime_multiplier, regenerate = False)

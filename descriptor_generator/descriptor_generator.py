@@ -8,6 +8,7 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem, Draw
 from rdkit.ML.Descriptors import MoleculeDescriptors
+from rdkit.Chem import Descriptors
 
 import glob
 from os import path, remove
@@ -61,6 +62,7 @@ class Molecule_Aggregate:
         self.fingerprint_dict:dict[str, pd.DataFrame] = {}
         self.descriptor_2D_dict:dict[str, pd.DataFrame] = {}
         self.descriptor_3D_dict:dict[str, pd.DataFrame] = {}
+        self.rdkit_descriptors:pd.DataFrame = pd.DataFrame()
         
         self.padelpy_threads = padelpy_threads
 
@@ -130,7 +132,7 @@ class Molecule_Aggregate:
                 molecule.SetProp("_Name",key)
                 w.write(molecule)
 
-    def generate_rdkit_descriptor(self)->pd.DataFrame:
+    def generate_rdkit_descriptor(self)->None:
         """
         generate rdkit descriptor and return a pandas.DataFrame
         """
@@ -150,7 +152,11 @@ class Molecule_Aggregate:
         # switch name to first column
         first_column = df.pop('Name')
         df.insert(0, 'Name', first_column)
-        return df
+        self.rdkit_descriptors = df
+
+    def get_rdkit_descriptor(self)->pd.DataFrame:
+
+        return self.rdkit_descriptors
     
     def check_partial_charge(self):
         
