@@ -2,7 +2,7 @@ from descriptor_generator.descriptor_generator import Molecule_Aggregate
 import json
 import pickle
 
-from os import path, remove
+from os import path
 
 # helper functions to help cache the data of calculated molecules
 def cache_molecule(molecule:Molecule_Aggregate, filename: str)->None:
