@@ -1,4 +1,5 @@
 {
+  "molecule_cache":"",
   "molecule_dir":"",
   "max_threads":8,
   "runtime_multiplier":100
