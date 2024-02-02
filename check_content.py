@@ -18,7 +18,7 @@ def cache_molecule(molecule:Molecule_Aggregate, filename: str)->None:
 
 def load_molecule(filename:str)->Molecule_Aggregate:
 
-    with open(filename, 'wb') as f:
+    with open(filename, 'rb') as f:
 
         molecule = pickle.load(f)
 
