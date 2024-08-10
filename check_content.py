@@ -3,6 +3,8 @@
 from descriptor_generator.descriptor_generator import Molecule_Aggregate
 import json
 import pickle
+import pandas as pd
+from functools import reduce
 
 from os import path
 
@@ -27,28 +29,33 @@ def load_molecule(filename:str)->Molecule_Aggregate:
 with open("config.json", "r") as f:
     configs = json.load(f)
 
-
-    molecule_cache = "/home/user/chunhou/Data/cache.pickle"
+    molecule_cache = configs.get("molecule_cache")
     print(molecule_cache)
 
     if path.isfile(molecule_cache):
         molecules = load_molecule(molecule_cache)
 
-        for key, value in molecules.fingerprint_dict.items():
+        dataframes_list = [ i.drop_duplicates(subset="Name", keep="last") for i in molecules.fingerprint_dict.values()]
+        # print(dataframes_list)
+        merged_df = dataframes_list[0]
 
-            print(key)
-            print(value)
+        for df in dataframes_list[1:]:
+            merged_df = merged_df.merge(df, on='Name', how='outer')
 
+        dataframes_list = [ i.drop_duplicates(subset="Name", keep="last") for i in molecules.descriptor_2D_dict.values()]
+        
+        for df in dataframes_list:
+            merged_df = merged_df.merge(df, on='Name', how='outer')
 
-        for key, value in molecules.descriptor_2D_dict.items():
+        dataframes_list = [ i.drop_duplicates(subset="Name", keep="last") for i in molecules.descriptor_3D_dict.values()]
+        
+        for df in dataframes_list:
+            merged_df = merged_df.merge(df, on='Name', how='outer')
 
-            print(key)
-            print(value)
+        merged_df = merged_df.merge(molecules.rdkit_descriptors, on='Name', how='outer')
 
+        merged_df = merged_df.dropna(axis=1)
+        merged_df.to_csv("inspect.csv", index=False)
 
-        for key, value in molecules.descriptor_3D_dict.items():
-
-            print(key)
-            print(value)
 
 
