@@ -28,6 +28,16 @@
               sha256 = "8ba7f2478f6e7732b96ee385b98d00d2af3d06f69225a1b6b39a8ad9dfb40a3d";
             };
           })
+
+        (
+          buildPythonPackage rec {
+            pname = "Boruta";
+            version = "0.4.3";
+            src = fetchPypi {
+              inherit pname version;
+              sha256 = "abd67119bb88c7d1675b0dfc78072e50b5ba1d32b7cc7664258a640ad3a495a4";
+            };
+          })
         ];
         my-python = pkgs.python311.withPackages my-python-packages;
       # A function to make a shell with a python version
